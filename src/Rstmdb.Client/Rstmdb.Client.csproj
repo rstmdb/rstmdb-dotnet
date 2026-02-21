@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <RootNamespace>Rstmdb.Client</RootNamespace>
+    <LangVersion>11</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <PackageId>Rstmdb.Client</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>rstmdb contributors</Authors>
+    <Description>Official .NET client for rstmdb - the replicated state machine database</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/rstmdb/rstmdb-dotnet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/rstmdb/rstmdb-dotnet</RepositoryUrl>
+  </PropertyGroup>
+
+  <!-- No external dependencies beyond System.Text.Json (built-in) -->
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Rstmdb.Client.Tests" />
+  </ItemGroup>
+
+</Project>
