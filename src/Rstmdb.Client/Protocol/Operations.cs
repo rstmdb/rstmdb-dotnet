@@ -23,4 +23,5 @@ internal static class Operations
     public const string WalRead = "WAL_READ";
     public const string WalStats = "WAL_STATS";
     public const string Compact = "COMPACT";
+    public const string FlushAll = "FLUSH_ALL";
 }

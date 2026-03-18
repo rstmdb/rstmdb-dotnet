@@ -216,6 +216,15 @@ public sealed class RstmdbClient : IAsyncDisposable
         return await DoRequestAsync<CompactResult>(Operations.Compact, parms, ct).ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Clears all instances and machine definitions from the database.
+    /// Requires <c>storage.allow_flush_all: true</c> in server configuration.
+    /// </summary>
+    public async Task<FlushAllResult> FlushAllAsync(CancellationToken ct = default)
+    {
+        return await DoRequestAsync<FlushAllResult>(Operations.FlushAll, new { }, ct).ConfigureAwait(false);
+    }
+
     // ── Dispose ───────────────────────────────────────────────────────
 
     public async ValueTask DisposeAsync()

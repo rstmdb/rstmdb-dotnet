@@ -95,3 +95,15 @@ public sealed class CompactResult
     [JsonPropertyName("wal_segments")]
     public int WalSegments { get; set; }
 }
+
+public sealed class FlushAllResult
+{
+    [JsonPropertyName("flushed")]
+    public bool Flushed { get; set; }
+
+    [JsonPropertyName("instances_removed")]
+    public int InstancesRemoved { get; set; }
+
+    [JsonPropertyName("machines_removed")]
+    public int MachinesRemoved { get; set; }
+}

@@ -468,6 +468,31 @@ public class ClientIntegrationTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task FlushAllAsync_ReturnsResult()
+    {
+        _server.RequestHandler = (op, _) =>
+        {
+            if (op == "FLUSH_ALL")
+            {
+                return new
+                {
+                    flushed = true,
+                    instances_removed = 42,
+                    machines_removed = 5,
+                };
+            }
+            return new { };
+        };
+
+        await using var client = await ConnectAsync();
+        var result = await client.FlushAllAsync();
+
+        Assert.True(result.Flushed);
+        Assert.Equal(42, result.InstancesRemoved);
+        Assert.Equal(5, result.MachinesRemoved);
+    }
+
+    [Fact]
     public async Task ErrorCode_MapsToRstmdbException()
     {
         _server.RequestHandler = (op, _) =>

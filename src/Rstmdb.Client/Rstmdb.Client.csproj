@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <PackageId>Rstmdb.Client</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.2.1</Version>
     <Authors>rstmdb contributors</Authors>
     <Description>Official .NET client for rstmdb - the replicated state machine database</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
