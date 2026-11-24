@@ -77,8 +77,9 @@ internal sealed class Connection : IAsyncDisposable
         };
         if (!string.IsNullOrEmpty(opts.ClientName))
             helloParams["client_name"] = opts.ClientName;
-        if (opts.Features != null && opts.Features.Length > 0)
-            helloParams["features"] = opts.Features;
+        helloParams["features"] = opts.Features is { Length: > 0 }
+            ? opts.Features
+            : new[] { "idempotency", "durable_idempotency", "batch" };
 
         // Send HELLO directly (before readLoop)
         var helloReq = new WireRequest

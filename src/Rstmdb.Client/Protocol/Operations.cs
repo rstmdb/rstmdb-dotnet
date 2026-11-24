@@ -24,4 +24,8 @@ internal static class Operations
     public const string WalStats = "WAL_STATS";
     public const string Compact = "COMPACT";
     public const string FlushAll = "FLUSH_ALL";
+    public const string ReplicationStatus = "REPLICATION_STATUS";
+    public const string BackupBegin = "BACKUP_BEGIN";
+    public const string BackupChunk = "BACKUP_CHUNK";
+    public const string BackupEnd = "BACKUP_END";
 }

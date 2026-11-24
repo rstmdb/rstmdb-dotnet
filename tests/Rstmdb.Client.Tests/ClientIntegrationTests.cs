@@ -747,4 +747,66 @@ public class ClientIntegrationTests : IAsyncLifetime
 
         Assert.Equal("key-1", receivedKey);
     }
+
+    [Fact]
+    public async Task ErrorCode_V03AndUnknownFutureCodes()
+    {
+        Assert.True(RstmdbException.IsIdempotencyConflict(new RstmdbException(ErrorCodes.IdempotencyConflict, "conflict")));
+        Assert.True(RstmdbException.IsGuardUnknown(new RstmdbException(ErrorCodes.GuardUnknown, "guard")));
+        Assert.True(RstmdbException.IsReadOnlyMode(new RstmdbException(ErrorCodes.ReadOnlyMode, "ro")));
+        Assert.True(RstmdbException.IsReplicationTimeout(new RstmdbException(ErrorCodes.ReplicationTimeout, "timeout", true)));
+        Assert.True(RstmdbException.IsReplicationError(new RstmdbException(ErrorCodes.ReplicationError, "rep")));
+
+        _server.RequestHandler = (op, _) =>
+        {
+            if (op == "PING")
+                return new MockError("FUTURE_ERROR_CODE", "future code", retryable: true);
+            return new { };
+        };
+
+        await using var client = await ConnectAsync();
+        var ex = await Assert.ThrowsAsync<RstmdbException>(() => client.PingAsync());
+
+        Assert.Equal("FUTURE_ERROR_CODE", ex.ErrorCode);
+        Assert.True(ex.IsRetryable);
+        Assert.NotEmpty(client.NegotiatedFeatures);
+    }
+
+    [Fact]
+    public async Task ReplicationStatusAndBackup_ReturnExpectedResults()
+    {
+        _server.RequestHandler = (op, _) => op switch
+        {
+            "REPLICATION_STATUS" => new { role = "standalone" },
+            "BACKUP_BEGIN" => new
+            {
+                backup_id = "bkp-1",
+                manifest = new { version = 1 },
+                total_bytes = 5UL,
+                chunk_size = 1024UL,
+            },
+            "BACKUP_CHUNK" => new
+            {
+                bytes = "aGVsbG8=",
+                eof = true,
+            },
+            "BACKUP_END" => new { ok = true },
+            _ => new { },
+        };
+
+        await using var client = await ConnectAsync();
+        var rep = await client.GetReplicationStatusAsync();
+        Assert.Equal("standalone", rep.Role);
+
+        var begin = await client.BackupBeginAsync("gzip");
+        Assert.Equal("bkp-1", begin.BackupId);
+        Assert.Equal(5UL, begin.TotalBytes);
+
+        var chunk = await client.BackupChunkAsync(begin.BackupId, 0, 1024);
+        Assert.True(chunk.Eof);
+        Assert.Equal("hello", System.Text.Encoding.UTF8.GetString(chunk.DecodeBytes()));
+
+        var end = await client.BackupEndAsync(begin.BackupId);
+        Assert.True(end.Ok);
+    }
 }

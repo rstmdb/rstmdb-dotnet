@@ -17,7 +17,12 @@ public static class ErrorCodes
     public const string InstanceExists = "INSTANCE_EXISTS";
     public const string InvalidTransition = "INVALID_TRANSITION";
     public const string GuardFailed = "GUARD_FAILED";
+    public const string GuardUnknown = "GUARD_UNKNOWN";
     public const string Conflict = "CONFLICT";
+    public const string IdempotencyConflict = "IDEMPOTENCY_CONFLICT";
+    public const string ReadOnlyMode = "READ_ONLY_MODE";
+    public const string ReplicationTimeout = "REPLICATION_TIMEOUT";
+    public const string ReplicationError = "REPLICATION_ERROR";
     public const string WalIoError = "WAL_IO_ERROR";
     public const string InternalError = "INTERNAL_ERROR";
     public const string RateLimited = "RATE_LIMITED";
