@@ -36,7 +36,12 @@ public class RstmdbException : Exception
     public static bool IsMachineNotFound(Exception ex) => HasCode(ex, ErrorCodes.MachineNotFound);
     public static bool IsInvalidTransition(Exception ex) => HasCode(ex, ErrorCodes.InvalidTransition);
     public static bool IsGuardFailed(Exception ex) => HasCode(ex, ErrorCodes.GuardFailed);
+    public static bool IsGuardUnknown(Exception ex) => HasCode(ex, ErrorCodes.GuardUnknown);
     public static bool IsConflict(Exception ex) => HasCode(ex, ErrorCodes.Conflict);
+    public static bool IsIdempotencyConflict(Exception ex) => HasCode(ex, ErrorCodes.IdempotencyConflict);
+    public static bool IsReadOnlyMode(Exception ex) => HasCode(ex, ErrorCodes.ReadOnlyMode);
+    public static bool IsReplicationTimeout(Exception ex) => HasCode(ex, ErrorCodes.ReplicationTimeout);
+    public static bool IsReplicationError(Exception ex) => HasCode(ex, ErrorCodes.ReplicationError);
 
     public static bool CheckRetryable(Exception ex)
     {

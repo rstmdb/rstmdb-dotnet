@@ -21,6 +21,9 @@ public sealed class RstmdbClient : IAsyncDisposable
     /// <summary>Server information returned from the HELLO handshake.</summary>
     public HelloResult ServerInfo => _serverInfo;
 
+    /// <summary>Features negotiated during the HELLO handshake.</summary>
+    public IReadOnlyList<string> NegotiatedFeatures => _serverInfo.Features ?? Array.Empty<string>();
+
     /// <summary>
     /// Connect to an rstmdb server, perform handshake, and optionally authenticate.
     /// </summary>
@@ -76,8 +79,14 @@ public sealed class RstmdbClient : IAsyncDisposable
             throw new RstmdbException(
                 resp.Error.Code,
                 resp.Error.Message,
-                resp.Error.Retryable);
+                resp.Error.Retryable,
+                resp.Error.Details?.ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => (object)kvp.Value));
         }
+
+        if (resp.Status != "ok")
+            throw new InvalidOperationException($"rstmdb: unexpected status \"{resp.Status}\"");
     }
 
     // ── System ────────────────────────────────────────────────────────
@@ -90,6 +99,11 @@ public sealed class RstmdbClient : IAsyncDisposable
     public async Task<ServerInfo> GetInfoAsync(CancellationToken ct = default)
     {
         return await DoRequestAsync<ServerInfo>(Operations.Info, null, ct).ConfigureAwait(false);
+    }
+
+    public async Task<ReplicationStatusResult> GetReplicationStatusAsync(CancellationToken ct = default)
+    {
+        return await DoRequestAsync<ReplicationStatusResult>(Operations.ReplicationStatus, new { }, ct).ConfigureAwait(false);
     }
 
     // ── Machines ──────────────────────────────────────────────────────
@@ -223,6 +237,26 @@ public sealed class RstmdbClient : IAsyncDisposable
     public async Task<FlushAllResult> FlushAllAsync(CancellationToken ct = default)
     {
         return await DoRequestAsync<FlushAllResult>(Operations.FlushAll, new { }, ct).ConfigureAwait(false);
+    }
+
+    // ── Backup ────────────────────────────────────────────────────────
+
+    public async Task<BackupBeginResult> BackupBeginAsync(string? compression = null, CancellationToken ct = default)
+    {
+        object parms = string.IsNullOrEmpty(compression) ? new { } : new { compression };
+        return await DoRequestAsync<BackupBeginResult>(Operations.BackupBegin, parms, ct).ConfigureAwait(false);
+    }
+
+    public async Task<BackupChunkResult> BackupChunkAsync(string backupId, ulong offset, ulong length, CancellationToken ct = default)
+    {
+        var parms = new { backup_id = backupId, offset, len = length };
+        return await DoRequestAsync<BackupChunkResult>(Operations.BackupChunk, parms, ct).ConfigureAwait(false);
+    }
+
+    public async Task<BackupEndResult> BackupEndAsync(string backupId, CancellationToken ct = default)
+    {
+        var parms = new { backup_id = backupId };
+        return await DoRequestAsync<BackupEndResult>(Operations.BackupEnd, parms, ct).ConfigureAwait(false);
     }
 
     // ── Dispose ───────────────────────────────────────────────────────
